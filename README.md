@@ -18,6 +18,8 @@ Fast pseudorandom number generator.
 It abuses [sync.Pool](https://golang.org/pkg/sync/#Pool) for maintaining
 "per-CPU" pseudorandom number generators.
 
+TODO: firgure out how to use real per-CPU pseudorandom number generators.
+
 
 # Benchmark results
 
