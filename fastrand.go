@@ -15,11 +15,19 @@ import (
 //
 // It is safe calling this function from concurrent goroutines.
 func Uint32() uint32 {
-	r := getRNG()
+	v := rngPool.Get()
+	if v == nil {
+		v = &RNG{
+			x: getRandomUint32(),
+		}
+	}
+	r := v.(*RNG)
 	x := r.Uint32()
-	putRNG(r)
+	rngPool.Put(r)
 	return x
 }
+
+var rngPool sync.Pool
 
 // Uint32n returns pseudorandom uint32 in the range [0..maxN).
 //
@@ -29,22 +37,6 @@ func Uint32n(maxN uint32) uint32 {
 	// See http://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
 	return uint32((uint64(x) * uint64(maxN)) >> 32)
 }
-
-func getRNG() *RNG {
-	v := rngPool.Get()
-	if v == nil {
-		v = &RNG{
-			x: getRandomUint32(),
-		}
-	}
-	return v.(*RNG)
-}
-
-func putRNG(r *RNG) {
-	rngPool.Put(r)
-}
-
-var rngPool sync.Pool
 
 // RNG is a pseudorandom number generator.
 //
