@@ -9,22 +9,22 @@ import (
 // BenchSink prevents the compiler from optimizing away benchmark loops.
 var BenchSink uint32
 
-func BenchmarkUint32N(b *testing.B) {
+func BenchmarkUint32n(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		s := uint32(0)
 		for pb.Next() {
-			s += Uint32N(1e6)
+			s += Uint32n(1e6)
 		}
 		atomic.AddUint32(&BenchSink, s)
 	})
 }
 
-func BenchmarkRNGUint32N(b *testing.B) {
+func BenchmarkRNGUint32n(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		var r RNG
 		s := uint32(0)
 		for pb.Next() {
-			s += r.Uint32N(1e6)
+			s += r.Uint32n(1e6)
 		}
 		atomic.AddUint32(&BenchSink, s)
 	})

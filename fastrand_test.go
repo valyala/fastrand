@@ -27,10 +27,10 @@ func TestRNGUint32(t *testing.T) {
 	}
 }
 
-func TestUint32N(t *testing.T) {
+func TestUint32n(t *testing.T) {
 	m := make(map[uint32]int)
 	for i := 0; i < 1e6; i++ {
-		n := Uint32N(1e2)
+		n := Uint32n(1e2)
 		if n >= 1e2 {
 			t.Fatalf("n > 1000: %v", n)
 		}
@@ -50,11 +50,11 @@ func TestUint32N(t *testing.T) {
 	}
 }
 
-func TestRNGUint32N(t *testing.T) {
+func TestRNGUint32n(t *testing.T) {
 	var r RNG
 	m := make(map[uint32]int)
 	for i := 0; i < 1e6; i++ {
-		n := r.Uint32N(1e2)
+		n := r.Uint32n(1e2)
 		if n >= 1e2 {
 			t.Fatalf("n > 1000: %v", n)
 		}

@@ -1,4 +1,8 @@
-// Package fastrand implements fast random number generators.
+// Package fastrand implements fast pesudorandom number generator
+// that should scale well on multi-CPU systems.
+//
+// Use crypto/rand instead of this package for generating
+// cryptographically secure random numbers.
 package fastrand
 
 import (
@@ -17,10 +21,10 @@ func Uint32() uint32 {
 	return x
 }
 
-// Uint32N returns pseudorandom uint32 in the range [0..maxN).
+// Uint32n returns pseudorandom uint32 in the range [0..maxN).
 //
 // It is safe calling this function from concurrent goroutines.
-func Uint32N(maxN uint32) uint32 {
+func Uint32n(maxN uint32) uint32 {
 	x := Uint32()
 	// See http://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
 	return uint32((uint64(x) * uint64(maxN)) >> 32)
@@ -66,10 +70,10 @@ func (r *RNG) Uint32() uint32 {
 	return x
 }
 
-// Uint32N returns pseudorandom uint32 in the range [0..maxN).
+// Uint32n returns pseudorandom uint32 in the range [0..maxN).
 //
 // It is unsafe to call this method from concurrent goroutines.
-func (r *RNG) Uint32N(maxN uint32) uint32 {
+func (r *RNG) Uint32n(maxN uint32) uint32 {
 	x := r.Uint32()
 	// See http://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
 	return uint32((uint64(x) * uint64(maxN)) >> 32)
