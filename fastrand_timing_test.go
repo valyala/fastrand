@@ -5,6 +5,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"unsafe"
 )
 
 // BenchSink prevents the compiler from optimizing away benchmark loops.
@@ -45,6 +46,28 @@ func BenchmarkRNGUint32nWithLock(b *testing.B) {
 	})
 }
 
+func BenchmarkRNGUint32nArray(b *testing.B) {
+	var rr [64]struct {
+		r  RNG
+		mu sync.Mutex
+
+		// pad prevents from false sharing
+		pad [64 - (unsafe.Sizeof(RNG{})+unsafe.Sizeof(sync.Mutex{}))%64]byte
+	}
+	var n uint32
+	b.RunParallel(func(pb *testing.PB) {
+		s := uint32(0)
+		for pb.Next() {
+			idx := atomic.AddUint32(&n, 1)
+			r := &rr[idx%uint32(len(rr))]
+			r.mu.Lock()
+			s += r.r.Uint32n(1e6)
+			r.mu.Unlock()
+		}
+		atomic.AddUint32(&BenchSink, s)
+	})
+}
+
 func BenchmarkMathRandInt31n(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 		s := uint32(0)
@@ -75,6 +98,32 @@ func BenchmarkMathRandRNGInt31nWithLock(b *testing.B) {
 			rMu.Lock()
 			s += uint32(r.Int31n(1e6))
 			rMu.Unlock()
+		}
+		atomic.AddUint32(&BenchSink, s)
+	})
+}
+
+func BenchmarkMathRandRNGInt31nArray(b *testing.B) {
+	var rr [64]struct {
+		r  *rand.Rand
+		mu sync.Mutex
+
+		// pad prevents from false sharing
+		pad [64 - (unsafe.Sizeof(RNG{})+unsafe.Sizeof(sync.Mutex{}))%64]byte
+	}
+	for i := range rr {
+		rr[i].r = rand.New(rand.NewSource(int64(i)))
+	}
+
+	var n uint32
+	b.RunParallel(func(pb *testing.PB) {
+		s := uint32(0)
+		for pb.Next() {
+			idx := atomic.AddUint32(&n, 1)
+			r := &rr[idx%uint32(len(rr))]
+			r.mu.Lock()
+			s += uint32(r.r.Int31n(1e6))
+			r.mu.Unlock()
 		}
 		atomic.AddUint32(&BenchSink, s)
 	})
