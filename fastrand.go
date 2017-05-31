@@ -6,9 +6,8 @@
 package fastrand
 
 import (
-	cryptorand "crypto/rand"
-	"fmt"
 	"sync"
+	"time"
 )
 
 // Uint32 returns pseudorandom uint32.
@@ -70,10 +69,6 @@ func (r *RNG) Uint32n(maxN uint32) uint32 {
 }
 
 func getRandomUint32() uint32 {
-	var buf [4]byte
-	_, err := cryptorand.Read(buf[:])
-	if err != nil {
-		panic(fmt.Sprintf("BUG: cannot read random number: %s", err))
-	}
-	return uint32(buf[3]) | (uint32(buf[2]) << 8) | (uint32(buf[1]) << 16) | (uint32(buf[0]) << 24)
+	x := time.Now().UnixNano()
+	return uint32((x >> 32) ^ x)
 }
