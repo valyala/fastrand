@@ -17,9 +17,7 @@ import (
 func Uint32() uint32 {
 	v := rngPool.Get()
 	if v == nil {
-		v = &RNG{
-			x: getRandomUint32(),
-		}
+		v = &RNG{}
 	}
 	r := v.(*RNG)
 	x := r.Uint32()
@@ -49,7 +47,7 @@ type RNG struct {
 //
 // It is unsafe to call this method from concurrent goroutines.
 func (r *RNG) Uint32() uint32 {
-	if r.x == 0 {
+	for r.x == 0 {
 		r.x = getRandomUint32()
 	}
 
