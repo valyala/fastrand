@@ -128,3 +128,9 @@ func BenchmarkMathRandRNGInt31nArray(b *testing.B) {
 		atomic.AddUint32(&BenchSink, s)
 	})
 }
+
+func Benchmark_getRandomUint32(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		getRandomUint32()
+	}
+}

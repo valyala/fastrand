@@ -6,8 +6,9 @@
 package fastrand
 
 import (
+	"crypto/rand"
+	"encoding/binary"
 	"sync"
-	"time"
 )
 
 // Uint32 returns pseudorandom uint32.
@@ -68,6 +69,8 @@ func (r *RNG) Uint32n(maxN uint32) uint32 {
 }
 
 func getRandomUint32() uint32 {
-	x := time.Now().UnixNano()
+	b := make([]byte, 8)
+	_, _ = rand.Read(b)
+	x := binary.BigEndian.Uint64(b)
 	return uint32((x >> 32) ^ x)
 }
