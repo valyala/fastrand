@@ -5,13 +5,22 @@ import (
 )
 
 func TestUint32(t *testing.T) {
-	m := make(map[uint32]struct{})
+	m := make(map[uint32]int)
 	for i := 0; i < 1e6; i++ {
 		n := Uint32()
-		if _, ok := m[n]; ok {
-			t.Fatalf("number %v already exists", n)
+		m[n]++
+	}
+
+	const minUniqueValues = 0.9 * 1e6
+	if len(m) < minUniqueValues {
+		t.Errorf("only %d unique numbers were generated", len(m))
+	}
+
+	const maxRepetition = 3
+	for number, count := range m {
+		if count > maxRepetition {
+			t.Errorf("number %d was generated %d times", number, count)
 		}
-		m[n] = struct{}{}
 	}
 }
 
