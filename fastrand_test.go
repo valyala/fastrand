@@ -25,7 +25,9 @@ func TestUint32(t *testing.T) {
 }
 
 func TestRNGUint32(t *testing.T) {
-	var r RNG
+	r := RNG{
+		x: getRandomUint32(),
+	}
 	m := make(map[uint32]struct{})
 	for i := 0; i < 1e6; i++ {
 		n := r.Uint32()
@@ -60,7 +62,9 @@ func TestUint32n(t *testing.T) {
 }
 
 func TestRNGUint32n(t *testing.T) {
-	var r RNG
+	r := RNG{
+		x: getRandomUint32(),
+	}
 	m := make(map[uint32]int)
 	for i := 0; i < 1e6; i++ {
 		n := r.Uint32n(1e2)
