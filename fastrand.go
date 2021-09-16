@@ -6,8 +6,9 @@
 package fastrand
 
 import (
+	"crypto/rand"
+	"encoding/binary"
 	"sync"
-	"time"
 )
 
 // Uint32 returns pseudorandom uint32.
@@ -15,16 +16,19 @@ import (
 // It is safe calling this function from concurrent goroutines.
 func Uint32() uint32 {
 	v := rngPool.Get()
-	if v == nil {
-		v = &RNG{}
-	}
 	r := v.(*RNG)
 	x := r.Uint32()
 	rngPool.Put(r)
 	return x
 }
 
-var rngPool sync.Pool
+var rngPool = sync.Pool{
+	New: func() interface{} {
+		return &RNG{
+			x: getRandomUint32(),
+		}
+	},
+}
 
 // Uint32n returns pseudorandom uint32 in the range [0..maxN).
 //
@@ -46,10 +50,6 @@ type RNG struct {
 //
 // It is unsafe to call this method from concurrent goroutines.
 func (r *RNG) Uint32() uint32 {
-	for r.x == 0 {
-		r.x = getRandomUint32()
-	}
-
 	// See https://en.wikipedia.org/wiki/Xorshift
 	x := r.x
 	x ^= x << 13
@@ -74,6 +74,8 @@ func (r *RNG) Seed(n uint32) {
 }
 
 func getRandomUint32() uint32 {
-	x := time.Now().UnixNano()
+	b := make([]byte, 8)
+	_, _ = rand.Read(b)
+	x := binary.BigEndian.Uint64(b)
 	return uint32((x >> 32) ^ x)
 }
